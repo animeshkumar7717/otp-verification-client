@@ -47,7 +47,7 @@ const OTPVerification = ({ phone, onBack }) => {
           if(response?.statusText === 'OK') {
             setShowSuccess(true);
           }
-          setPopupMessage(`${response?.data?.message}`)
+          // setPopupMessage(`${response?.data?.message}`)
           setOtp("")
       }
       else setError("Enter a valid 6-digit code");
