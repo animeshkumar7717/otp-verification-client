@@ -1,34 +1,67 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
+import PopUp from "./PopUp";
 
-const OTPVerification = ({ phone, onVerify, onResend, onBack }) => {
+const OTPVerification = ({ phone, onBack }) => {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [timer, setTimer] = useState(120);
   const [resendDisabled, setResendDisabled] = useState(true);
+  const [popupMessage, setPopupMessage] = useState("");
 
   useEffect(() => {
+    if (!resendDisabled) return;
+  
     const interval = setInterval(() => {
       setTimer((prev) => {
-        if (prev === 1) {
+        if (prev <= 1) {
           clearInterval(interval);
           setResendDisabled(false);
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
+  
     return () => clearInterval(interval);
-  }, []);
+  }, [resendDisabled]);
+  
 
-  const handleVerify = () => {
-    if (/^\d{6}$/.test(otp)) onVerify(otp);
-    else setError("Enter a valid 6-digit code");
+  const resetTimer = () => {
+    setTimer(5);
+    setResendDisabled(true);
+  };
+   
+
+  const handleVerify = async() => {
+    try {
+      if (/^\d{6}$/.test(otp)) {
+          const response = await axios.post(`http://localhost:8080/api/auth/verify-otp`, {
+                  phone,
+                  otp
+          })
+          setPopupMessage(`${response?.data?.message}`)
+          setOtp("")
+      }
+      else setError("Enter a valid 6-digit code");
+    } catch (error) {
+      setPopupMessage(`${error?.response?.data?.error || 'something went wrong!'}`)
+      resetTimer();
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async() => {
     setResendDisabled(true);
     setTimer(120);
-    onResend();
-  };
+    try {      
+      const response = await axios.post(`http://localhost:8080/api/auth/send-otp`, { phone });
+      setPopupMessage(`Verification code resent to ${phone}`);
+      setOtp("")
+    } catch (err) {
+      setError("Error sending OTP:", err) 
+    }
+    
+  }
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -74,6 +107,8 @@ const OTPVerification = ({ phone, onVerify, onResend, onBack }) => {
         </button>
       </div>
       <p className="text-gray-500 mt-3">Resend in {formatTime(timer)}</p>
+
+      {popupMessage && <PopUp message={popupMessage} onClose={() => { setPopupMessage(""); }} />}
     </div>
   );
 };
