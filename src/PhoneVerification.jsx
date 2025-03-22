@@ -34,9 +34,9 @@ const PhoneVerification = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-[#5A4563]">
       {!showOTP ? (
-        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96 h-64">
           <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Phone Verification</h2>
           <p className="text-gray-600 text-center mb-4">Enter your mobile number</p>
           <input

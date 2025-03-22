@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import PopUp from "./PopUp";
+import SuccessMessage from "./SuccessMessage";
 
 const OTPVerification = ({ phone, onBack }) => {
   const [otp, setOtp] = useState("");
@@ -8,6 +9,8 @@ const OTPVerification = ({ phone, onBack }) => {
   const [timer, setTimer] = useState(120);
   const [resendDisabled, setResendDisabled] = useState(true);
   const [popupMessage, setPopupMessage] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+
 
   useEffect(() => {
     if (!resendDisabled) return;
@@ -40,6 +43,9 @@ const OTPVerification = ({ phone, onBack }) => {
                   phone,
                   otp
           })
+          if(response?.statusText === 'OK') {
+            setShowSuccess(true);
+          }
           setPopupMessage(`${response?.data?.message}`)
           setOtp("")
       }
@@ -71,6 +77,11 @@ const OTPVerification = ({ phone, onBack }) => {
 
   return (
     <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg w-96 relative">
+       {showSuccess ? (
+      <SuccessMessage onComplete={() => setShowSuccess(false)} />
+    ) : (
+      // existing OTP UI
+      <>
       <button onClick={onBack} className="absolute top-3 left-3 bg-gray-200 px-3 py-1 rounded-md text-gray-700 hover:bg-gray-300">
         Back
       </button>
@@ -109,6 +120,8 @@ const OTPVerification = ({ phone, onBack }) => {
       <p className="text-gray-500 mt-3">Resend in {formatTime(timer)}</p>
 
       {popupMessage && <PopUp message={popupMessage} onClose={() => { setPopupMessage(""); }} />}
+      </>
+    )}
     </div>
   );
 };
