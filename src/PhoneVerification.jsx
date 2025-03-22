@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import Popup from "./PopUp";
+import PopUp from "./PopUp";
 import OTPVerification from "./OTPVerification";
+import axios from "axios";
 
 const PhoneVerification = () => {
   const [phone, setPhone] = useState("");
@@ -21,8 +22,15 @@ const PhoneVerification = () => {
     }
   };
 
-  const handleVerify = () => {
-    if (!error && phone.length === 10) setPopupMessage(`Verification code sent to ${phone}`);
+  const handleVerify = async () => {
+    if (!error && phone.length === 10) {
+      try {
+        const response = await axios.post(`http://localhost:8080/api/auth/send-otp`, { phone });
+        setPopupMessage(response?.data?.message || `Verification code sent to ${phone}`);
+      } catch (err) {
+        setError("Error sending OTP:", err.response?.data || err.message)
+      }
+    }
   };
 
   return (
@@ -50,10 +58,10 @@ const PhoneVerification = () => {
           </button>
         </div>
       ) : (
-        <OTPVerification phone={phone} onVerify={(otp) => console.log("Verified OTP:", otp)} onResend={() => console.log("Resend OTP")} onBack={() => setShowOTP(false)} />
+        <OTPVerification phone={phone} onBack={() => setShowOTP(false)} />
       )}
 
-      {popupMessage && <Popup message={popupMessage} onClose={() => { setPopupMessage(""); setShowOTP(true); }} />}
+      {popupMessage && <PopUp message={popupMessage} onClose={() => { setPopupMessage(""); setShowOTP(true); }} />}
     </div>
   );
 };
