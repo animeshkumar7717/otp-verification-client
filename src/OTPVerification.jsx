@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import PopUp from "./PopUp";
 import SuccessMessage from "./SuccessMessage";
+import { baseURL } from "./config/baseurl";
 
 const OTPVerification = ({ phone, onBack }) => {
   const [otp, setOtp] = useState("");
@@ -39,7 +40,7 @@ const OTPVerification = ({ phone, onBack }) => {
   const handleVerify = async() => {
     try {
       if (/^\d{6}$/.test(otp)) {
-          const response = await axios.post(`http://localhost:8080/api/auth/verify-otp`, {
+          const response = await axios.post(`${baseURL}api/auth/verify-otp`, {
                   phone,
                   otp
           })
@@ -51,6 +52,7 @@ const OTPVerification = ({ phone, onBack }) => {
       }
       else setError("Enter a valid 6-digit code");
     } catch (error) {
+      console.log('error', error)
       setPopupMessage(`${error?.response?.data?.error || 'something went wrong!'}`)
       resetTimer();
     }
@@ -60,7 +62,7 @@ const OTPVerification = ({ phone, onBack }) => {
     setResendDisabled(true);
     setTimer(120);
     try {      
-      const response = await axios.post(`http://localhost:8080/api/auth/send-otp`, { phone });
+      const response = await axios.post(`${baseURL}api/auth/send-otp`, { phone });
       setPopupMessage(`Verification code resent to ${phone}`);
       setOtp("")
     } catch (err) {

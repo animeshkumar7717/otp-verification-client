@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PopUp from "./PopUp";
 import OTPVerification from "./OTPVerification";
 import axios from "axios";
+import { baseURL } from "./config/baseurl";
 
 const PhoneVerification = () => {
   const [phone, setPhone] = useState("");
@@ -25,7 +26,7 @@ const PhoneVerification = () => {
   const handleVerify = async () => {
     if (!error && phone.length === 10) {
       try {
-        const response = await axios.post(`http://localhost:8080/api/auth/send-otp`, { phone });
+        const response = await axios.post(`${baseURL}api/auth/send-otp`, { phone });
         setPopupMessage(response?.data?.message || `Verification code sent to ${phone}`);
       } catch (err) {
         setError("Error sending OTP:", err.response?.data || err.message)
