@@ -10,11 +10,7 @@ const OTPVerification = ({ phone, onBack }) => {
   const [timer, setTimer] = useState(120);
   const [resendDisabled, setResendDisabled] = useState(true);
   const [popupMessage, setPopupMessage] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  console.log('showSuccess::', showSuccess);
-  
-
+  const [showSuccess, setShowSuccess] = useState(false);  
 
   useEffect(() => {
     if (!resendDisabled) return;
@@ -46,22 +42,15 @@ const OTPVerification = ({ phone, onBack }) => {
           const response = await axios.post(`${baseURL}api/auth/verify-otp`, {
                   phone,
                   otp
-          })
-
-          console.log('respo::', response);
+          })          
           
-          
-          if(response?.data?.token && response?.status === 200) {
-            console.log('inside the condition');
-            
+          if(response?.data?.token && response?.status === 200) {            
             setShowSuccess(true);
           }
-          // setPopupMessage(`${response?.data?.message}`)
           setOtp("")
       }
       else setError("Enter a valid 6-digit code");
     } catch (error) {
-      console.log('error', error)
       setPopupMessage(`${error?.response?.data?.error || 'something went wrong!'}`)
       resetTimer();
     }
@@ -86,13 +75,16 @@ const OTPVerification = ({ phone, onBack }) => {
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
+  if (showSuccess) {
+    return (
+      <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg w-96 relative">
+        <SuccessMessage onComplete={() => setShowSuccess(false)} />
+      </div>
+    );
+  }
+  
   return (
     <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg w-96 relative">
-       {showSuccess ? (
-      <SuccessMessage onComplete={() => setShowSuccess(false)} />
-    ) : (
-      // existing OTP UI
-      <>
       <button onClick={onBack} className="absolute top-3 left-3 bg-gray-200 px-3 py-1 rounded-md text-gray-700 hover:bg-gray-300">
         Back
       </button>
@@ -107,7 +99,7 @@ const OTPVerification = ({ phone, onBack }) => {
         className={`w-full px-4 py-2 border ${error ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring focus:ring-blue-200 outline-none text-center`}
       />
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
+  
       <div className="flex gap-4 mt-4">
         <button
           onClick={handleVerify}
@@ -129,12 +121,10 @@ const OTPVerification = ({ phone, onBack }) => {
         </button>
       </div>
       <p className="text-gray-500 mt-3">Resend in {formatTime(timer)}</p>
-
+  
       {popupMessage && <PopUp message={popupMessage} onClose={() => { setPopupMessage(""); }} />}
-      </>
-    )}
     </div>
-  );
+  );  
 };
 
 export default OTPVerification;
