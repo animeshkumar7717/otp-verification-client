@@ -12,6 +12,9 @@ const OTPVerification = ({ phone, onBack }) => {
   const [popupMessage, setPopupMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
+  console.log('showSuccess::', showSuccess);
+  
+
 
   useEffect(() => {
     if (!resendDisabled) return;
@@ -45,8 +48,12 @@ const OTPVerification = ({ phone, onBack }) => {
                   otp
           })
 
+          console.log('respo::', response);
+          
           
           if(response?.data?.token && response?.status === 200) {
+            console.log('inside the condition');
+            
             setShowSuccess(true);
           }
           // setPopupMessage(`${response?.data?.message}`)
